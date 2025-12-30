@@ -24,15 +24,29 @@ def load_csv(filename: str) -> pd.DataFrame:
 
 
 def load_participants(folder_name: str) -> pd.DataFrame:
+    """Loads participants.csv file and filters to active participants only
+
+    Args:
+        folder_name (str): Folder containing participants.csv file
+
+    Returns:
+        pd.DataFrame: Pandas Dataframe of participants for pairing
+    """
     logger.info("🍐 Loading pairing participants...")
     participants = load_csv(os.path.join(folder_name, "participants.csv"))
-    participants.columns = participants.columns.str.replace(
-        "ï»¿", "", regex=False
-    ).str.strip()  # Defending against CSV files with UTF-8 Byte Order Mark (BOM)
     return participants[participants["active"]]
 
 
-def list_past_pairings(folder_name: str):
+def list_past_pairings(folder_name: str) -> list[str]:
+    """Looks for past pairings in pairings subfolder. Past pairings should be in CSV format and following
+    the naming convention round_1, round_2, round_3.
+
+    Args:
+        folder_name (str): Folder in which pairings subfolder is located
+
+    Returns:
+        list[str]: List of past pairing CSV files, if any. Returns empty list if no past pairings.
+    """
     try:
         past_pairings = sorted(
             [
@@ -48,10 +62,21 @@ def list_past_pairings(folder_name: str):
         raise
 
 
-def load_past_pairings(folder_name: str):
+def load_past_pairings(
+    folder_name: str, past_pairings_to_consider: int = 3
+) -> list[pd.DataFrame | None]:
+    """Loads past pairings as dataframes, so that we can check that new pairings are not repeats
+
+    Args:
+        folder_name (str): Folder in which data is stored
+        past_pairings_to_consider (int, optional): Number of past pairings to load. Defaults to 3.
+
+    Returns:
+        list[pd.DataFrame | None]: List of past pairing dataframes
+    """
     logger.info("Loading past pairs...")
     past_pairings = list_past_pairings(folder_name)
-    recent_pairings = past_pairings[-3:]
+    recent_pairings = past_pairings[-past_pairings_to_consider:]
     recent_pairing_dfs = []
     if len(recent_pairings) > 0:
         recent_pairing_dfs = [pd.read_csv(round_file) for round_file in recent_pairings]

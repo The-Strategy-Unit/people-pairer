@@ -8,7 +8,7 @@ logger = setup_logger(__name__, level="INFO")
 
 
 def parse_args():
-    """Parse command line arguments."""
+    """Parse command line arguments"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--data_filepath",
@@ -20,11 +20,16 @@ def parse_args():
 
 
 def main(folder_name: str = "data"):
+    """Full people pairing pipeline. Loads participants, checks for past pairings, creates new pairings, and saves new pairings
+
+    Args:
+        folder_name (str, optional): Folder containing participants and past pairings as CSV files in pairings subfolder. Defaults to "data".
+    """
     participants = load_participants(folder_name)
     past_pairing_dfs = load_past_pairings(folder_name)
     new_pairs_df = generate_pairs_avoiding_history(
         participants,
-        previous_pairings=past_pairing_dfs,
+        past_pairing_dfs,
     )
     save_created_pairs(folder_name, new_pairs_df)
     logger.info("Application finished")

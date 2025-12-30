@@ -8,6 +8,14 @@ logger = setup_logger(__name__, level="INFO")
 def extract_forbidden_pairs(
     past_pairing_dfs: Iterable[pd.DataFrame | None],
 ) -> Set[FrozenSet[str]]:
+    """Parses past pairings so we can ensure they are not repeated
+
+    Args:
+        past_pairing_dfs (Iterable[pd.DataFrame | None]): List of past pairing dataframes. Can be empty if no past pairings
+
+    Returns:
+        Set[FrozenSet[str]]: Set containing past pairs to be avoided
+    """
     forbidden = set()
     if len(past_pairing_dfs) > 0:
         for df in past_pairing_dfs:
@@ -18,10 +26,25 @@ def extract_forbidden_pairs(
 
 def generate_pairs_avoiding_history(
     participants: pd.DataFrame,
-    previous_pairings: Iterable[pd.DataFrame],
+    past_pairing_dfs: Iterable[pd.DataFrame | None],
     max_attempts: int = 2000,
 ) -> pd.DataFrame:
-    logger.info(f"🍐🧮 Starting pair generation with {max_attempts} max attempts...")
+    """Generates pairs, ensuring that pairs have not been seen before and that pairs do not belong to the same team.
+
+    Args:
+        participants (pd.DataFrame): DataFrame with participants to pair, with columns name, email and team
+        past_pairing_dfs (Iterable[pd.DataFrame  |  None]): List of dataframes with past pairings
+        max_attempts (int, optional): Number of attempts to generate pairings meeting all conditions. Defaults to 2000.
+
+    Raises:
+        ValueError: Number of participants to pair must be even
+        ValueError: Because participants cannot be in the same team, no teams can be larger than 50% of participant total
+        RuntimeError: Unable to generate pairings meeting conditions in the given number of max attempts
+
+    Returns:
+        pd.DataFrame: New pairings meeting all conditions
+    """
+    logger.info(f"🧮 Starting pair generation with {max_attempts} max attempts...")
     if len(participants) % 2 != 0:
         raise ValueError("Number of participants must be even")
 
@@ -29,7 +52,7 @@ def generate_pairs_avoiding_history(
     if participants["team"].value_counts().max() > len(participants) // 2:
         raise ValueError("Impossible to pair: one team is too large")
 
-    forbidden_pairs = extract_forbidden_pairs(previous_pairings)
+    forbidden_pairs = extract_forbidden_pairs(past_pairing_dfs)
 
     for _ in range(max_attempts):
         shuffled = participants.sample(frac=1).reset_index(drop=True)
@@ -67,5 +90,5 @@ def generate_pairs_avoiding_history(
             return pd.DataFrame(pairs)
 
     raise RuntimeError(
-        "Could not generate valid pairs without same-team or previous matches"
+        f"Could not generate valid pairs without same-team or previous matches in {max_attempts} iterations"
     )
