@@ -17,14 +17,18 @@ def load_csv(filename: str) -> pd.DataFrame:
     """
     try:
         with open(filename) as f:
-            return pd.read_csv(f, encoding="utf-8")
+            return pd.read_csv(f, encoding="utf-8-sig")
     except Exception:
         logger.exception("Failed to load CSV: %s", filename)
         raise
 
 
 def load_participants() -> pd.DataFrame:
+    logger.info("🍐 Loading pairing participants...")
     participants = load_csv(os.path.join("data", "participants.csv"))
+    participants.columns = participants.columns.str.replace(
+        "ï»¿", "", regex=False
+    ).str.strip()
     return participants[participants["active"]]
 
 
@@ -45,9 +49,11 @@ def list_past_pairings(folder_name: str):
 
 
 def load_past_pairings(folder_name: str = "data"):
+    logger.info("Loading past pairs...")
     past_pairings = list_past_pairings(folder_name)
     recent_pairings = past_pairings[-3:]
     recent_pairing_dfs = []
     if len(recent_pairings) > 0:
         recent_pairing_dfs = [pd.read_csv(round_file) for round_file in recent_pairings]
+    logger.info(f"🚫 Using last {len(recent_pairings)} as forbidden pairings")
     return recent_pairing_dfs
