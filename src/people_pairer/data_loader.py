@@ -23,12 +23,12 @@ def load_csv(filename: str) -> pd.DataFrame:
         raise
 
 
-def load_participants() -> pd.DataFrame:
+def load_participants(folder_name: str) -> pd.DataFrame:
     logger.info("🍐 Loading pairing participants...")
-    participants = load_csv(os.path.join("data", "participants.csv"))
+    participants = load_csv(os.path.join(folder_name, "participants.csv"))
     participants.columns = participants.columns.str.replace(
         "ï»¿", "", regex=False
-    ).str.strip()
+    ).str.strip()  # Defending against CSV files with UTF-8 Byte Order Mark (BOM)
     return participants[participants["active"]]
 
 
@@ -48,7 +48,7 @@ def list_past_pairings(folder_name: str):
         raise
 
 
-def load_past_pairings(folder_name: str = "data"):
+def load_past_pairings(folder_name: str):
     logger.info("Loading past pairs...")
     past_pairings = list_past_pairings(folder_name)
     recent_pairings = past_pairings[-3:]
