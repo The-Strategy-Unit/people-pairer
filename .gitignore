@@ -248,4 +248,10 @@ pyrightconfig.json
 # End of https://www.toptal.com/developers/gitignore/api/python
 .vscode/
 
+# Hide data
 data/*
+*.csv
+
+# Explicitly allow sample data
+!sample_data/participants.csv
+!sample_data/pairings/round_1.csv

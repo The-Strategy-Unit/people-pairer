@@ -38,7 +38,7 @@ def main(folder_name: str = "data", past_pairings: int = 3):
         past_pairing_dfs,
     )
     save_created_pairs(folder_name, new_pairs_df)
-    logger.info("Application finished")
+    logger.info("Application finished! 🍐🤝🍐")
 
 
 if __name__ == "__main__":
