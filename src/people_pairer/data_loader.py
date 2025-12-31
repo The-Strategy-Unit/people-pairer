@@ -16,8 +16,7 @@ def load_csv(filename: str) -> pd.DataFrame:
         pd.DataFrame: Contents of loaded CSV file
     """
     try:
-        with open(filename) as f:
-            return pd.read_csv(f, encoding="utf-8-sig")
+        return pd.read_csv(filename, encoding="utf-8-sig")
     except Exception:
         logger.exception("Failed to load CSV: %s", filename)
         raise
@@ -53,7 +52,8 @@ def list_past_pairings(folder_name: str) -> list[str]:
                 os.path.join(folder_name, "pairings", file)
                 for file in os.listdir(os.path.join(folder_name, "pairings"))
                 if file.startswith("round_")
-            ]
+            ],
+            key=lambda p: int(p.split("_")[-1].strip(".csv")),
         )
         logger.info(f"{len(past_pairings)} past pairings found")
         return past_pairings

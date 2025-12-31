@@ -19,5 +19,5 @@ def save_created_pairs(folder_name: str, new_pairs_df: pd.DataFrame):
     else:
         current_round = 1
     filepath = os.path.join(folder_name, "pairings", f"round_{current_round}.csv")
-    new_pairs_df.to_csv(filepath)
+    new_pairs_df.to_csv(filepath, encoding="utf-8-sig", index=False)
     logger.info(f"💾 New pairings saved at: {filepath}")

@@ -27,7 +27,7 @@ def extract_forbidden_pairs(
 def generate_pairs_avoiding_history(
     participants: pd.DataFrame,
     past_pairing_dfs: Iterable[pd.DataFrame | None],
-    max_attempts: int = 2000,
+    max_attempts: int = 5000,
 ) -> pd.DataFrame:
     """Generates pairs, ensuring that pairs have not been seen before and that pairs do not belong to the same team.
 
